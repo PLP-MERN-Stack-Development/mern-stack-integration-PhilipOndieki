@@ -56,7 +56,10 @@ app.use((err, req, res, next) => {
 
 // Connect to MongoDB and start server
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    dbName: 'mindful-haven'
+  })
   .then(() => {
     console.log('Connected to MongoDB');
     app.listen(PORT, () => {
@@ -75,4 +78,4 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-module.exports = app; 
+module.exports = app;
