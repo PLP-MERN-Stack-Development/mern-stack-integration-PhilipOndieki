@@ -4,7 +4,10 @@ const {
   getCategories,
   createCategory,
 } = require('../controllers/categoryController');
+const { validateCategory } = require('../middleware/validateRequest');
 
-router.route('/').get(getCategories).post(createCategory);
+router.route('/')
+  .get(getCategories)
+  .post(validateCategory, createCategory);
 
 module.exports = router;

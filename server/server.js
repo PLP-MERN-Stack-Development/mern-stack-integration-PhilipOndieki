@@ -1,16 +1,19 @@
-// server.js - Main server file for the MERN blog application
-
 // Import required modules
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+
+// Import database connection
+const connectDB = require('./config/database');
 
 // Import routes
 const postRoutes = require('./routes/posts');
 const categoryRoutes = require('./routes/categories');
 const authRoutes = require('./routes/auth');
+
+// Import middleware
+const errorHandler = require('./middleware/errorHandler');
 
 // Load environment variables
 dotenv.config();
@@ -35,11 +38,6 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
-// API routes
-app.use('/api/posts', postRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/auth', authRoutes);
-
 // Root route
 app.get('/', (req, res) => {
   res.send('MERN Blog API is running');
@@ -54,22 +52,52 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connect to MongoDB and start server
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
-    dbName: 'mindful-haven'
-  })
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('Failed to connect to MongoDB', err);
-    process.exit(1);
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'MERN Blog API is running',
+    version: '1.0.0',
+    endpoints: {
+      posts: '/api/posts',
+      categories: '/api/categories',
+      auth: '/api/auth'
+    }
   });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Route not found'
+  });
+});
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// Connect to MongoDB and start server
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  process.exit(1);
+});
+
+module.exports = app;
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
