@@ -20,17 +20,15 @@ const PostPage = () => {
   }, [id]);
 
   if (!post) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <div>
-      <h1 className="text-4xl font-bold">{post.title}</h1>
-      <div className="mt-8">
-        <p>{post.content}</p>
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading post...</p>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 export default PostPage;

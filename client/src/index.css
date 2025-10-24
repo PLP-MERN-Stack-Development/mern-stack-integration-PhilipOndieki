@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #4a7c59; /* Sage green */
+  --color-primary-dark: #3d6b4a;
+  --color-secondary: #e8f5e9; /* Light mint */
+  --color-accent: #8db596; /* Soft teal */
+  --color-text: #2d3436;
+  --color-text-light: #636e72;
+}
+
 body {
   font-family: "Plus Jakarta Sans", sans-serif;
+  color: var(--color-text);
 }

@@ -7,27 +7,29 @@ const Header = () => {
     <header className="bg-white">
       <nav className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <img src="/logo.svg" alt="Mindful Haven Logo" className="h-8 w-auto" />
-            <Link to="/" className="text-2xl font-bold text-gray-800 ml-2">
+
+          <div className="flex items-center gap-3">
+            <img src="/logo.svg" alt="Mindful Haven" className="h-10 w-10" />
+            <Link to="/" className="text-xl font-semibold text-gray-900 tracking-tight">
               Mindful Haven
             </Link>
           </div>
+
           <div className="hidden md:flex items-center">
-            <Link to="/about" className="text-gray-600 hover:text-gray-800 px-3 py-2">About</Link>
-            <Link to="/features" className="text-gray-600 hover:text-gray-800 px-3 py-2">Features</Link>
-            <Link to="/enterprise" className="text-gray-600 hover:text-gray-800 px-3 py-2">Enterprise</Link>
-            <Link to="/pricing" className="text-gray-600 hover:text-gray-800 px-3 py-2">Pricing</Link>
-            <Link to="/blog" className="text-gray-600 hover:text-gray-800 px-3 py-2">Blog</Link>
+            <Link to="/about" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">About</Link>
+            <Link to="/features" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Features</Link>
+            <Link to="/enterprise" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Enterprise</Link>
+            <Link to="/pricing" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Pricing</Link>
+            <Link to="/blog" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Blog</Link>
           </div>
           <div className="flex items-center">
             <SignedOut>
               <div className="hidden md:flex items-center">
                 <SignInButton mode="modal">
-                  <button className="text-gray-600 hover:text-gray-800 px-3 py-2">Sign in</button>
+                  <button className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Sign in</button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className="bg-gray-800 text-white rounded-md px-4 py-2 ml-4 hover:bg-gray-700">Get in touch</button>
+                  <button className="bg-primary text-white text-sm font-medium rounded-full px-6 py-2.5 hover:bg-primary-dark transition-all shadow-sm">Get in touch</button>
                 </SignUpButton>
               </div>
             </SignedOut>
