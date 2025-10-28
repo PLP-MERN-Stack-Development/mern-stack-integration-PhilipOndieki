@@ -1,12 +1,47 @@
 const Post = require('../models/post');
 
-// @desc    Get all posts
+// @desc    Get all posts with search and pagination
 // @route   GET /api/posts
 // @access  Public
 exports.getPosts = async (req, res, next) => {
   try {
-    const posts = await Post.find().populate('author', 'username').populate('category', 'name');
-    res.json({ success: true, data: posts });
+    const { search, category, page = 1, limit = 10 } = req.query;
+    
+    // Build query
+    let query = {};
+    
+    if (search) {
+      query.$text = { $search: search };
+    }
+    
+    if (category) {
+      query.category = category;
+    }
+    
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    
+    // Execute query
+    const posts = await Post.find(query)
+      .populate('author', 'username email')
+      .populate('category', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    // Get total count
+    const total = await Post.countDocuments(query);
+    
+    res.json({ 
+      success: true, 
+      data: posts,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -17,12 +52,18 @@ exports.getPosts = async (req, res, next) => {
 // @access  Public
 exports.getPostById = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id).populate('author', 'username').populate('category', 'name');
+    const post = await Post.findById(req.params.id)
+      .populate('author', 'username email')
+      .populate('category', 'name');
+      
     if (!post) {
       return res.status(404).json({ success: false, error: 'Post not found' });
     }
     res.json({ success: true, data: post });
   } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({ success: false, error: 'Post not found' });
+    }
     next(error);
   }
 };
@@ -33,8 +74,18 @@ exports.getPostById = async (req, res, next) => {
 exports.createPost = async (req, res, next) => {
   try {
     const post = await Post.create(req.body);
-    res.status(201).json({ success: true, data: post });
+    const populatedPost = await Post.findById(post._id)
+      .populate('author', 'username email')
+      .populate('category', 'name');
+    
+    res.status(201).json({ success: true, data: populatedPost });
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        success: false, 
+        error: Object.values(error.errors).map(e => e.message).join(', ')
+      });
+    }
     next(error);
   }
 };
@@ -44,15 +95,30 @@ exports.createPost = async (req, res, next) => {
 // @access  Private
 exports.updatePost = async (req, res, next) => {
   try {
-    const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const post = await Post.findByIdAndUpdate(
+      req.params.id, 
+      req.body, 
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate('author', 'username email')
+     .populate('category', 'name');
+     
     if (!post) {
       return res.status(404).json({ success: false, error: 'Post not found' });
     }
     res.json({ success: true, data: post });
   } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({ success: false, error: 'Post not found' });
+    }
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        success: false, 
+        error: Object.values(error.errors).map(e => e.message).join(', ')
+      });
+    }
     next(error);
   }
 };
@@ -66,8 +132,11 @@ exports.deletePost = async (req, res, next) => {
     if (!post) {
       return res.status(404).json({ success: false, error: 'Post not found' });
     }
-    res.json({ success: true, data: {} });
+    res.json({ success: true, data: {}, message: 'Post deleted successfully' });
   } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({ success: false, error: 'Post not found' });
+    }
     next(error);
   }
 };
