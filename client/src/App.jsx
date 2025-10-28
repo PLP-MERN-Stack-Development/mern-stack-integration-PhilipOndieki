@@ -8,6 +8,7 @@ import AboutPage from './pages/AboutPage';
 import FeaturesPage from './pages/FeaturesPage';
 import EnterprisePage from './pages/EnterprisePage';
 import PricingPage from './pages/PricingPage';
+import CreatePostPage from './pages/CreatePostPage';
 
 function App() {
   return (

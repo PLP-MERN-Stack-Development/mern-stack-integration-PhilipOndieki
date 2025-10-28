@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getPosts } from '../services/api';
 import { Link } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
+
 
 const BlogPage = () => {
+  const { isSignedIn } = useUser();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +66,21 @@ const BlogPage = () => {
         <div className="max-w-2xl mx-auto mb-12">
           <div className="h-12 bg-gray-200 rounded-full animate-pulse"></div>
         </div>
+
+        {/* Create Post Button */}
+        {isSignedIn && (
+          <div className="text-center mb-8">
+            <Link
+              to="/blog/create"
+              className="inline-flex items-center gap-2 bg-[#4a7c59] text-white font-semibold rounded-full px-6 py-3 hover:bg-[#3d6b4a] transition-all shadow-md"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create New Post
+            </Link>
+          </div>
+        )}
 
         {/* Posts Grid Skeleton */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
