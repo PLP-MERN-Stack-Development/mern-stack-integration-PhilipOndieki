@@ -71,13 +71,23 @@ exports.getPostById = async (req, res, next) => {
 // @desc    Create new post
 // @route   POST /api/posts
 // @access  Private
-exports.createPost = async (req, res, next) => {
+exports.createPost = async (req, res) => {
   try {
-    const post = await Post.create(req.body);
-    const populatedPost = await Post.findById(post._id)
-      .populate('author', 'username email')
-      .populate('category', 'name');
-    
+    const { clerkId, ...postData } = req.body;
+
+    // Find user by clerkId
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const post = await Post.create({
+      ...postData,
+      author: user._id
+    });
     res.status(201).json({ success: true, data: populatedPost });
   } catch (error) {
     if (error.name === 'ValidationError') {

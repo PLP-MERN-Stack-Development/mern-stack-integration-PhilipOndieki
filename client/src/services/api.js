@@ -13,6 +13,7 @@ export const getPost = (id) => api.get(`/posts/${id}`);
 export const createPost = (post) => api.post('/posts', post);
 export const updatePost = (id, post) => api.put(`/posts/${id}`, post);
 export const deletePost = (id) => api.delete(`/posts/${id}`);
+export const createOrGetUser = (userData) => api.post('/users', userData);
 
 // Response interceptor for better error handling
 api.interceptors.response.use(

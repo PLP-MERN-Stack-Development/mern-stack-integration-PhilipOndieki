@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
-import { createPost, getCategories } from '../services/api';
+import { createPost, getCategories, createOrGetUser } from '../services/api';
 
 const CreatePostPage = () => {
   const { user, isSignedIn } = useUser();
@@ -24,6 +24,20 @@ const CreatePostPage = () => {
       return;
     }
     
+    // Fetch or create user in database
+    const initializeUser = async () => {
+      try {
+        await createOrGetUser({
+          clerkId: user.id,
+          email: user.primaryEmailAddress?.emailAddress,
+          username: user.username || user.firstName || 'User'
+        });
+      } catch (error) {
+        console.error('Error initializing user:', error);
+      }
+    };
+    
+  initializeUser();    
     // Fetch categories
     const fetchCategories = async () => {
       try {
@@ -43,12 +57,10 @@ const CreatePostPage = () => {
     setError(null);
 
     try {
-      // You'll need to create/find a user in your database first
-      // For now, using a placeholder author ID
       const postData = {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        author: '507f1f77bcf86cd799439011', // Placeholder - replace with actual user ID from your DB
+        clerkId: user.id, // Send Clerk ID instead of MongoDB ID
       };
 
       await createPost(postData);
@@ -60,6 +72,9 @@ const CreatePostPage = () => {
       setLoading(false);
     }
   };
+
+
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

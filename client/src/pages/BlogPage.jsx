@@ -68,7 +68,7 @@ const BlogPage = () => {
         </div>
 
         {/* Create Post Button */}
-        {isSignedIn && (
+        {isSignedIn && !loading && (
           <div className="text-center mb-8">
             <Link
               to="/blog/create"
@@ -81,6 +81,8 @@ const BlogPage = () => {
             </Link>
           </div>
         )}
+
+
 
         {/* Posts Grid Skeleton */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
