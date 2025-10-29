@@ -67,23 +67,6 @@ const BlogPage = () => {
           <div className="h-12 bg-gray-200 rounded-full animate-pulse"></div>
         </div>
 
-        {/* Create Post Button */}
-        {isSignedIn && !loading && (
-          <div className="text-center mb-8">
-            <Link
-              to="/blog/create"
-              className="inline-flex items-center gap-2 bg-[#4a7c59] text-white font-semibold rounded-full px-6 py-3 hover:bg-[#3d6b4a] transition-all shadow-md"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Create New Post
-            </Link>
-          </div>
-        )}
-
-
-
         {/* Posts Grid Skeleton */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -246,6 +229,21 @@ const BlogPage = () => {
           )}
         </div>
       </div>
+
+      {/* Create Post Button */}
+      {isSignedIn && (
+        <div className="text-center mb-8">
+          <Link
+            to="/blog/create"
+            className="inline-flex items-center gap-2 bg-[#4a7c59] text-white font-semibold rounded-full px-6 py-3 hover:bg-[#3d6b4a] transition-all shadow-md"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create New Post
+          </Link>
+        </div>
+      )}
 
       {/* Results Count */}
       {searchTerm && (
