@@ -1,4 +1,6 @@
 const Post = require('../models/post');
+const User = require('../models/user');
+
 
 // @desc    Get all posts with search and pagination
 // @route   GET /api/posts
@@ -71,7 +73,7 @@ exports.getPostById = async (req, res, next) => {
 // @desc    Create new post
 // @route   POST /api/posts
 // @access  Private
-exports.createPost = async (req, res) => {
+exports.createPost = async (req, res, next) => {
   try {
     const { clerkId, ...postData } = req.body;
 
@@ -83,11 +85,13 @@ exports.createPost = async (req, res) => {
         error: 'User not found'
       });
     }
-
     const post = await Post.create({
       ...postData,
       author: user._id
     });
+    const populatedPost = await Post.findById(post._id)
+      .populate('author', 'username email')
+      .populate('category', 'name');
     res.status(201).json({ success: true, data: populatedPost });
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -96,7 +100,6 @@ exports.createPost = async (req, res) => {
         error: Object.values(error.errors).map(e => e.message).join(', ')
       });
     }
-    next(error);
   }
 };
 
