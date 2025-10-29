@@ -75,10 +75,10 @@ exports.getPostById = async (req, res, next) => {
 // @access  Private
 exports.createPost = async (req, res, next) => {
   try {
-    const { clerkId, ...postData } = req.body;
+    const { clerkUserId, ...postData } = req.body;
 
-    // Find user by clerkId
-    const user = await User.findOne({ clerkId });
+    // Find user by clerkUserId
+    const user = await User.findOne({ clerkUserId });
     if (!user) {
       return res.status(404).json({
         success: false,

@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const User = require('../models/user');
 
 // Create or get user
 router.post('/', async (req, res) => {
   try {
-    const { clerkId, email, username } = req.body;
+    const { clerkUserId, email, username } = req.body;
     
     // Check if user exists
-    let user = await User.findOne({ clerkId });
+    let user = await User.findOne({ clerkUserId });
     
     if (!user) {
       // Create new user
-      user = await User.create({ clerkId, email, username });
+      user = await User.create({ clerkUserId, email, username });
     }
     
     res.status(200).json({

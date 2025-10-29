@@ -28,7 +28,7 @@ const CreatePostPage = () => {
     const initializeUser = async () => {
       try {
         await createOrGetUser({
-          clerkId: user.id,
+          clerkUserId: user.id,
           email: user.primaryEmailAddress?.emailAddress,
           username: user.username || user.firstName || 'User'
         });
@@ -42,9 +42,11 @@ const CreatePostPage = () => {
     const fetchCategories = async () => {
       try {
         const response = await getCategories();
-        setCategories(response.data.data);
+        setCategories(response.data.data || response.data || []);
       } catch (error) {
         console.error('Error fetching categories:', error);
+        setError('Failed to load categories. Please refresh the page.');
+        setCategories([]); // Set empty array to prevent map error
       }
     };
     
@@ -60,7 +62,7 @@ const CreatePostPage = () => {
       const postData = {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        clerkId: user.id, // Send Clerk ID instead of MongoDB ID
+        clerkUserId: user.id, // Send Clerk ID instead of MongoDB ID
       };
 
       await createPost(postData);
@@ -138,6 +140,13 @@ const CreatePostPage = () => {
             ))}
           </select>
         </div>
+            {categories.length > 0 ? (
+              categories.map(cat => (
+                <option key={cat._id} value={cat._id}>{cat.name}</option>
+              ))
+            ) : (
+              <option disabled>Loading categories...</option>
+            )}
 
         {/* Content */}
         <div>
