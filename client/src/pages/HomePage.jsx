@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getPosts } from '../services/api';
 import { Link } from 'react-router-dom';
+import { SignUpButton } from '@clerk/clerk-react';
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
@@ -75,22 +76,24 @@ const HomePage = () => {
 
           {/* CTA Button */}
           <div className="mt-10">
-            <button className="group bg-[#4a7c59] text-white font-semibold rounded-full px-8 py-4 hover:bg-[#3d6b4a] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 inline-flex items-center gap-2">
-              Get Started
-              <svg
-                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </button>
+            <SignUpButton mode="modal">
+              <button className="group bg-[#4a7c59] text-white font-semibold rounded-full px-8 py-4 hover:bg-[#3d6b4a] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 inline-flex items-center gap-2">
+                Get Started
+                <svg
+                  className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </button>
+            </SignUpButton>
           </div>
 
           {/* Social Proof */}

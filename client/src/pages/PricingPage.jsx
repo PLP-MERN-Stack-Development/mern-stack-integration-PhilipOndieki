@@ -1,4 +1,5 @@
 import React from 'react';
+import { SignUpButton } from '@clerk/clerk-react';
 
 const PricingPage = () => {
   const plans = [
@@ -127,15 +128,17 @@ const PricingPage = () => {
                 ))}
               </ul>
 
-              <button
-                className={`w-full py-3 rounded-full font-semibold transition-all ${
-                  plan.popular
-                    ? 'bg-white text-[#4a7c59] hover:bg-gray-100'
-                    : 'bg-[#4a7c59] text-white hover:bg-[#3d6b4a]'
-                }`}
-              >
-                {plan.cta}
-              </button>
+              <SignUpButton mode="modal">
+                <button
+                  className={`w-full py-3 rounded-full font-semibold transition-all ${
+                    plan.popular
+                      ? 'bg-white text-[#4a7c59] hover:bg-gray-100'
+                      : 'bg-[#4a7c59] text-white hover:bg-[#3d6b4a]'
+                  }`}
+                >
+                  {plan.cta}
+                </button>
+              </SignUpButton>
             </div>
           ))}
         </div>

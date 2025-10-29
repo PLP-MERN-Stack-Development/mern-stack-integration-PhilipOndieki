@@ -11,6 +11,7 @@ const connectDB = require('./config/database');
 const postRoutes = require('./routes/posts');
 const categoryRoutes = require('./routes/categories');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -46,16 +47,18 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/posts', postRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'MERN Blog API is running',
     version: '1.0.0',
     endpoints: {
       posts: '/api/posts',
       categories: '/api/categories',
-      auth: '/api/auth'
+      auth: '/api/auth',
+      users: '/api/users'
     }
   });
 });
