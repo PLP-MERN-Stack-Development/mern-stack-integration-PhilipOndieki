@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { SignUpButton } from '@clerk/clerk-react';
 
 const FeaturesPage = () => {
   const features = [
@@ -105,12 +105,11 @@ const FeaturesPage = () => {
       <div className="container mx-auto px-6 py-16 text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Get Started?</h2>
         <p className="text-gray-600 mb-8">Join thousands of users who have transformed their lives.</p>
-        <Link
-          to="/blog"
-          className="inline-block bg-[#4a7c59] text-white font-semibold rounded-full px-8 py-4 hover:bg-[#3d6b4a] transition-all shadow-lg"
-        >
-          Start Your Journey
-        </Link>
+        <SignUpButton mode="modal">
+          <button className="inline-block bg-[#4a7c59] text-white font-semibold rounded-full px-8 py-4 hover:bg-[#3d6b4a] transition-all shadow-lg">
+            Start Your Journey
+          </button>
+        </SignUpButton>
       </div>
     </div>
   );
