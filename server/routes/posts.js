@@ -7,7 +7,7 @@ const {
   updatePost,
   deletePost,
 } = require('../controllers/postController');
-const { validatePost } = require('../middleware/validateRequest');
+const { validatePost, validatePostUpdate } = require('../middleware/validateRequest');
 
 router.route('/')
   .get(getPosts)
@@ -15,7 +15,7 @@ router.route('/')
 
 router.route('/:id')
   .get(getPostById)
-  .put(validatePost, updatePost)
+  .put(validatePostUpdate, updatePost)
   .delete(deletePost);
 
 module.exports = router;

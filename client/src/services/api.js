@@ -8,12 +8,18 @@ const api = axios.create({
 });
 
 // Post services
-export const getPosts = () => api.get('/posts');
+export const getPosts = (params = {}) => api.get('/posts', { params });
 export const getPost = (id) => api.get(`/posts/${id}`);
 export const createPost = (post) => api.post('/posts', post);
 export const updatePost = (id, post) => api.put(`/posts/${id}`, post);
 export const deletePost = (id) => api.delete(`/posts/${id}`);
 export const createOrGetUser = (userData) => api.post('/users', userData);
+
+// Comment services
+export const getComments = (postId, params = {}) => api.get(`/posts/${postId}/comments`, { params });
+export const createComment = (postId, commentData) => api.post(`/posts/${postId}/comments`, commentData);
+export const updateComment = (commentId, commentData) => api.put(`/comments/${commentId}`, commentData);
+export const deleteComment = (commentId, clerkId) => api.delete(`/comments/${commentId}`, { data: { clerkId } });
 
 // Response interceptor for better error handling
 api.interceptors.response.use(
