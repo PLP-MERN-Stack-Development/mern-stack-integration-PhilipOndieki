@@ -42,7 +42,8 @@ const CreatePostPage = () => {
     const fetchCategories = async () => {
       try {
         const response = await getCategories();
-        setCategories(response.data.data || response.data || []);
+        const categoryData = response?.data?.data || response?.data || [];
+        setCategories(Array.isArray(categoryData) ? categoryData : []);
       } catch (error) {
         console.error('Error fetching categories:', error);
         setError('Failed to load categories. Please refresh the page.');
@@ -135,19 +136,11 @@ const CreatePostPage = () => {
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#4a7c59] focus:outline-none transition-colors"
           >
             <option value="">Select a category</option>
-            {categories.map(cat => (
+            {(categories || []).map(cat => (
               <option key={cat._id} value={cat._id}>{cat.name}</option>
             ))}
           </select>
         </div>
-            {categories.length > 0 ? (
-              categories.map(cat => (
-                <option key={cat._id} value={cat._id}>{cat.name}</option>
-              ))
-            ) : (
-              <option disabled>Loading categories...</option>
-            )}
-
         {/* Content */}
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-900 mb-2">

@@ -18,8 +18,8 @@ const BlogPage = () => {
         setLoading(true);
         setError(null);
         const response = await getPosts();
-        setPosts(response.data.data);
-        setFilteredPosts(response.data.data);
+        setPosts(response.data.data || []);
+        setFilteredPosts(response.data.data || []);
       } catch (error) {
         console.error('Error fetching posts:', error);
         setError({
@@ -40,7 +40,7 @@ const BlogPage = () => {
     if (searchTerm.trim() === '') {
       setFilteredPosts(posts);
     } else {
-      const filtered = posts.filter(post =>
+      const filtered = (posts || []).filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -249,13 +249,13 @@ const BlogPage = () => {
       {searchTerm && (
         <div className="mb-6 text-center">
           <p className="text-gray-600">
-            Found <strong className="text-gray-900">{filteredPosts.length}</strong> article{filteredPosts.length !== 1 ? 's' : ''} matching "{searchTerm}"
+            Found <strong className="text-gray-900">{filteredPosts?.length}</strong> article{filteredPosts.length !== 1 ? 's' : ''} matching "{searchTerm}"
           </p>
         </div>
       )}
 
       {/* No Results State */}
-      {filteredPosts.length === 0 && !loading && !error && (
+      {(filteredPosts?.length === 0 || !filteredPosts) && !loading && !error && (
         <div className="text-center py-16">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-6">
             <svg
@@ -288,7 +288,7 @@ const BlogPage = () => {
       )}
 
       {/* Blog Posts Grid */}
-      {filteredPosts.length > 0 && (
+      {filteredPosts?.length > 0 && (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filteredPosts.map((post) => (
             <article
@@ -400,7 +400,7 @@ const BlogPage = () => {
       )}
 
       {/* Load More or Back to Top */}
-      {filteredPosts.length > 0 && (
+      {filteredPosts?.length > 0 && (
         <div className="text-center mt-16">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

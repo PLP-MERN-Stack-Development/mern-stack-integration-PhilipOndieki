@@ -195,7 +195,7 @@ const HomePage = () => {
         {/* Posts Grid */}
         {!loading && !error && (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {posts.slice(0, 6).map((post) => (
+            {posts?.slice(0, 6).map((post) => (
               <article
                 key={post._id}
                 className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
@@ -253,7 +253,7 @@ const HomePage = () => {
         )}
 
         {/* View All Button */}
-        {!loading && !error && posts.length > 0 && (
+        {!loading && !error && posts?.length > 0 && (
           <div className="text-center mt-12">
             <Link
               to="/blog"

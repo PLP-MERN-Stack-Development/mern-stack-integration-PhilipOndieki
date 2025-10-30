@@ -23,13 +23,11 @@ const postSchema = Joi.object({
       'string.min': 'Content must be at least 10 characters long',
       'any.required': 'Content is required'
     }),
-
-  author: Joi.string()
+  clerkUserId: Joi.string()
     .required()
     .messages({
-      'any.required': 'Author is required'
+      'any.required': 'clerkUserId is required'
     }),
-
   category: Joi.string()
     .required()
     .messages({
