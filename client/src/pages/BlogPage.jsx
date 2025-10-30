@@ -295,32 +295,40 @@ const BlogPage = () => {
               key={post._id}
               className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
             >
-              {/* Article Image */}
-              {post.featuredImage ? (
-                <img 
-                  src={post.featuredImage} 
-                  alt={post.title}
-                  className="w-full aspect-video object-cover"
-                  onError={(e) => {
-                    e.target.parentElement.innerHTML = `
-                      <div class="absolute inset-0 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                      </div>
-                    `;
-                  }}
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="w-16 h-16 text-white opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+              {/* Article Image with Loading */}
+              <div className="relative aspect-video bg-gradient-to-br from-[#e8f5e9] to-[#8db596]">
+                {post.featuredImage ? (
+                  <>
+                    {/* Loading skeleton */}
+                    <div className="absolute inset-0 animate-pulse" />                   
+                    <img 
+                      src={post.featuredImage} 
+                      alt={post.title}
+                      className="relative w-full h-full object-cover"
+                      loading="lazy"
+                      onLoad={(e) => {
+                        if (e.target.previousSibling) {
+                          e.target.previousSibling.style.display = 'none';
+                        }
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </>
+                ) : null}
+                
+                {/* Hover overlay */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="bg-white/90 rounded-full p-3">
+                    <svg className="w-6 h-6 text-[#4a7c59]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
                 </div>
-              )}
-
-
-
+              </div>
+              
               {/* Article Content */}
               <div className="p-6">
                 {/* Category Badge */}
