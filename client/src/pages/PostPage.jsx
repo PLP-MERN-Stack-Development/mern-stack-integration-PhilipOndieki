@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getPost } from '../services/api';
+import { getPost, deletePost } from '../services/api';  
+import { useUser } from '@clerk/clerk-react';
 
 const PostPage = () => {
+  const { user, isSignedIn } = useUser();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,6 +28,18 @@ const PostPage = () => {
 
     fetchPost();
   }, [id]);
+
+const handleDelete = async () => {
+  if (!window.confirm('Are you sure you want to delete this post?')) return;
+  
+  try {
+    await deletePost(id);
+    navigate('/blog');
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    alert('Failed to delete post');
+  }
+};
 
   if (loading) {
     return (
@@ -116,17 +130,42 @@ const PostPage = () => {
         </div>
       </header>
 
-      {/* Featured Image Placeholder */}
-      <div className="aspect-video bg-gradient-to-br from-[#e8f5e9] to-[#8db596] rounded-2xl mb-12 flex items-center justify-center">
+      {/* Featured Image */}
+      {post.featuredImage ? (
+        <img 
+          src={post.featuredImage} 
+          alt={post.title}
+          className="w-full aspect-video object-cover rounded-2xl mb-12"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.nextSibling.style.display = 'flex';
+          }}
+        />
+      ) : null}
+      <div className="aspect-video bg-gradient-to-br from-[#e8f5e9] to-[#8db596] rounded-2xl mb-12 flex items-center justify-center" style={{ display: post.featuredImage ? 'none' : 'flex' }}>
         <svg className="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
-
       {/* Post Content */}
       <div className="prose prose-lg max-w-none mb-12">
-        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-          {post.content}
+        <div className="text-gray-700 leading-relaxed prose prose-lg max-w-none">
+          {post.content.split('\n').map((paragraph, index) => {
+            // Handle headers
+            if (paragraph.startsWith('## ')) {
+              return <h2 key={index} className="text-2xl font-bold mt-8 mb-4">{paragraph.replace('## ', '')}</h2>;
+            }
+            if (paragraph.startsWith('### ')) {
+              return <h3 key={index} className="text-xl font-bold mt-6 mb-3">{paragraph.replace('### ', '')}</h3>;
+            }
+            // Handle bold text
+            const formattedText = paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Empty lines become spacing
+            if (paragraph.trim() === '') {
+              return <br key={index} />;
+            }
+            return <p key={index} className="mb-4" dangerouslySetInnerHTML={{ __html: formattedText }} />;
+          })}
         </div>
       </div>
 
@@ -143,7 +182,29 @@ const PostPage = () => {
           ))}
         </div>
       )}
-
+      {/* Edit and Delete Buttons - Only show if user is the author */}
+      {isSignedIn && user?.id === post.author?.clerkUserId && (
+        <div className="flex gap-4 mb-12 pb-12 border-b border-gray-200">
+          <button
+            onClick={() => navigate(`/blog/edit/${post._id}`)}
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-[#4a7c59] text-white font-semibold rounded-full px-6 py-3 hover:bg-[#3d6b4a] transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit Post
+          </button>
+          <button
+            onClick={handleDelete}
+            className="inline-flex items-center gap-2 border-2 border-red-500 text-red-500 font-semibold rounded-full px-6 py-3 hover:bg-red-50 transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete
+          </button>
+        </div>
+      )}
       {/* Navigation */}
       <div className="flex justify-between items-center">
         <button

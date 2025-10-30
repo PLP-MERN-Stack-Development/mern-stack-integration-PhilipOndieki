@@ -9,6 +9,7 @@ import FeaturesPage from './pages/FeaturesPage';
 import EnterprisePage from './pages/EnterprisePage';
 import PricingPage from './pages/PricingPage';
 import CreatePostPage from './pages/CreatePostPage';
+import EditPostPage from './pages/EditPostPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="blog" element={<BlogPage />} />
           <Route path="blog/create" element={<CreatePostPage />} />
           <Route path="blog/:id" element={<PostPage />} />
+          <Route path="/blog/edit/:id" element={<EditPostPage />} />
         </Route>
       </Routes>
     </Router>

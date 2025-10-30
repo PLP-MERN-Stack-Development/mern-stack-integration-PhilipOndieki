@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
-import { createPost, getCategories, createOrGetUser } from '../services/api';
+import { getPost, updatePost, getCategories } from '../services/api';
 
-const CreatePostPage = () => {
+const EditPostPage = () => {
   const { user, isSignedIn } = useUser();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     category: '',
+    featuredImage: '',
     tags: '',
-    featuredImage: '', 
     isPublished: true
   });
 
@@ -24,61 +26,65 @@ const CreatePostPage = () => {
       navigate('/blog');
       return;
     }
-    
-    // Fetch or create user in database
-    const initializeUser = async () => {
+
+    const fetchData = async () => {
       try {
-        await createOrGetUser({
-          clerkUserId: user.id,
-          email: user.primaryEmailAddress?.emailAddress,
-          username: user.username || user.firstName || 'User'
+        setLoading(true);
+        const [postResponse, categoriesResponse] = await Promise.all([
+          getPost(id),
+          getCategories()
+        ]);
+
+        const post = postResponse.data.data;
+        
+        // Check if user is the author
+        if (post.author.clerkUserId !== user.id) {
+          alert('You can only edit your own posts');
+          navigate('/blog');
+          return;
+        }
+
+        setFormData({
+          title: post.title,
+          content: post.content,
+          category: post.category._id,
+          featuredImage: post.featuredImage || '',
+          tags: post.tags?.join(', ') || '',
+          isPublished: post.isPublished
         });
+
+        setCategories(categoriesResponse.data.data || []);
       } catch (error) {
-        console.error('Error initializing user:', error);
+        console.error('Error fetching post:', error);
+        setError('Failed to load post');
+      } finally {
+        setLoading(false);
       }
     };
-    
-  initializeUser();    
-    // Fetch categories
-    const fetchCategories = async () => {
-      try {
-        const response = await getCategories();
-        const categoryData = response?.data?.data || response?.data || [];
-        setCategories(Array.isArray(categoryData) ? categoryData : []);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-        setError('Failed to load categories. Please refresh the page.');
-        setCategories([]); // Set empty array to prevent map error
-      }
-    };
-    
-    fetchCategories();
-  }, [isSignedIn, navigate]);
+
+    fetchData();
+  }, [id, isSignedIn, navigate, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     setError(null);
 
     try {
       const postData = {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        clerkUserId: user.id, // Send Clerk ID instead of MongoDB ID
       };
 
-      await createPost(postData);
-      navigate('/blog');
+      await updatePost(id, postData);
+      navigate(`/blog/${id}`);
     } catch (error) {
-      console.error('Error creating post:', error);
-      setError(error.response?.data?.error || 'Failed to create post');
+      console.error('Error updating post:', error);
+      setError(error.response?.data?.error || 'Failed to update post');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
-
-
-
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -88,15 +94,24 @@ const CreatePostPage = () => {
     }));
   };
 
-  if (!isSignedIn) {
-    return null;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#4a7c59] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading post...</p>
+        </div>
+      </div>
+    );
   }
+
+  if (!isSignedIn) return null;
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Create New Post</h1>
-        <p className="text-gray-600">Share your thoughts and insights with the community.</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Edit Post</h1>
+        <p className="text-gray-600">Make changes to your post.</p>
       </div>
 
       {error && (
@@ -106,7 +121,6 @@ const CreatePostPage = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Title */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-900 mb-2">
             Title *
@@ -119,11 +133,9 @@ const CreatePostPage = () => {
             value={formData.title}
             onChange={handleChange}
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#4a7c59] focus:outline-none transition-colors"
-            placeholder="Enter your post title"
           />
         </div>
 
-        {/* Category */}
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-900 mb-2">
             Category *
@@ -137,12 +149,12 @@ const CreatePostPage = () => {
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#4a7c59] focus:outline-none transition-colors"
           >
             <option value="">Select a category</option>
-            {(categories || []).map(cat => (
+            {categories.map(cat => (
               <option key={cat._id} value={cat._id}>{cat.name}</option>
             ))}
           </select>
         </div>
-        {/* Featured Image URL */}
+
         <div>
           <label htmlFor="featuredImage" className="block text-sm font-medium text-gray-900 mb-2">
             Featured Image URL
@@ -156,11 +168,8 @@ const CreatePostPage = () => {
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#4a7c59] focus:outline-none transition-colors"
             placeholder="https://images.unsplash.com/photo-..."
           />
-          <p className="mt-2 text-sm text-gray-500">
-            Paste an image URL from Unsplash, Pexels, or any image hosting service
-          </p>
         </div>
-        {/* Content */}
+
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-900 mb-2">
             Content *
@@ -173,14 +182,12 @@ const CreatePostPage = () => {
             onChange={handleChange}
             rows={12}
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#4a7c59] focus:outline-none transition-colors resize-none"
-            placeholder="Write your post content here..."
           />
           <p className="mt-2 text-sm text-gray-500">
             {formData.content.split(' ').filter(word => word).length} words
           </p>
         </div>
 
-        {/* Tags */}
         <div>
           <label htmlFor="tags" className="block text-sm font-medium text-gray-900 mb-2">
             Tags
@@ -192,12 +199,10 @@ const CreatePostPage = () => {
             value={formData.tags}
             onChange={handleChange}
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#4a7c59] focus:outline-none transition-colors"
-            placeholder="mindfulness, meditation, wellness (comma-separated)"
+            placeholder="mindfulness, meditation, wellness"
           />
-          <p className="mt-2 text-sm text-gray-500">Separate tags with commas</p>
         </div>
 
-        {/* Publish Status */}
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
@@ -208,22 +213,21 @@ const CreatePostPage = () => {
             className="w-5 h-5 text-[#4a7c59] border-gray-300 rounded focus:ring-[#4a7c59]"
           />
           <label htmlFor="isPublished" className="text-sm font-medium text-gray-900">
-            Publish immediately
+            Published
           </label>
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-4 pt-4">
           <button
             type="submit"
-            disabled={loading}
-            className="flex-1 bg-[#4a7c59] text-white font-semibold rounded-full px-8 py-4 hover:bg-[#3d6b4a] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={saving}
+            className="flex-1 bg-[#4a7c59] text-white font-semibold rounded-full px-8 py-4 hover:bg-[#3d6b4a] transition-all shadow-lg disabled:opacity-50"
           >
-            {loading ? 'Creating...' : 'Publish Post'}
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
           <button
             type="button"
-            onClick={() => navigate('/blog')}
+            onClick={() => navigate(`/blog/${id}`)}
             className="px-8 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-full hover:border-gray-400 hover:bg-gray-50 transition-all"
           >
             Cancel
@@ -234,4 +238,4 @@ const CreatePostPage = () => {
   );
 };
 
-export default CreatePostPage;
+export default EditPostPage;
