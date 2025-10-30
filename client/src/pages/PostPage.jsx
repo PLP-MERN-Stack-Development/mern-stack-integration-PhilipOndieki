@@ -129,23 +129,35 @@ const handleDelete = async () => {
           </span>
         </div>
       </header>
-
-      {/* Featured Image */}
-      {post.featuredImage ? (
-        <img 
-          src={post.featuredImage} 
-          alt={post.title}
-          className="w-full aspect-video object-cover rounded-2xl mb-12"
-          onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
-          }}
-        />
-      ) : null}
-      <div className="aspect-video bg-gradient-to-br from-[#e8f5e9] to-[#8db596] rounded-2xl mb-12 flex items-center justify-center" style={{ display: post.featuredImage ? 'none' : 'flex' }}>
-        <svg className="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
+      {/* Featured Image with Loading State */}
+      <div className="relative aspect-video rounded-2xl mb-12 overflow-hidden">
+        {post.featuredImage ? (
+          <>
+            {/* Loading skeleton - shows while image loads */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#e8f5e9] to-[#8db596] animate-pulse" />
+            
+            <img 
+              src={post.featuredImage} 
+              alt={post.title}
+              className="relative w-full h-full object-cover"
+              loading="lazy"
+              onLoad={(e) => {
+                // Hide skeleton when image loads
+                e.target.previousSibling.style.display = 'none';
+              }}
+              onError={(e) => {
+                // Show placeholder if image fails
+                e.target.style.display = 'none';
+              }}
+            />
+          </>
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#e8f5e9] to-[#8db596] flex items-center justify-center">
+            <svg className="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        )}
       </div>
       {/* Post Content */}
       <div className="prose prose-lg max-w-none mb-12">
