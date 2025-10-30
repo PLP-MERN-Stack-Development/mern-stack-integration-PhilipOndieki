@@ -10,10 +10,12 @@ import EnterprisePage from './pages/EnterprisePage';
 import PricingPage from './pages/PricingPage';
 import CreatePostPage from './pages/CreatePostPage';
 import EditPostPage from './pages/EditPostPage';
+import UserSync from './components/UserSync';
 
 function App() {
   return (
     <Router>
+      <UserSync /> 
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
