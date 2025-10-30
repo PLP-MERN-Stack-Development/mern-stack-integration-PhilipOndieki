@@ -27,6 +27,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   origin: [
+    'https://mindfulhaven22.netlify.app',
     'https://mindfulhaven22.onrender.com', 
     'https://mern-stack-integration-philipondieki.onrender.com',
     'http://localhost:5173', 
