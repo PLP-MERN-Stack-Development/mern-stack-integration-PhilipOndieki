@@ -131,7 +131,7 @@ const commentSchema = Joi.object({
       'any.required': 'Comment content is required'
     }),
 
-  author: Joi.string()
+  clerkId: Joi.string()
     .required()
     .messages({
       'any.required': 'Author is required'
