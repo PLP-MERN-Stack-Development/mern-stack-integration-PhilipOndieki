@@ -21,6 +21,15 @@ export const createComment = (postId, commentData) => api.post(`/posts/${postId}
 export const updateComment = (commentId, commentData) => api.put(`/comments/${commentId}`, commentData);
 export const deleteComment = (commentId, clerkId) => api.delete(`/comments/${commentId}`, { data: { clerkId } });
 
+// Like services
+export const toggleLike = (postId, clerkUserId) => api.post(`/posts/${postId}/like`, { clerkUserId });
+export const getPostLikes = (postId, clerkUserId) => api.get(`/posts/${postId}/likes`, { params: { clerkUserId } });
+
+// Bookmark services
+export const toggleBookmark = (postId, clerkUserId) => api.post(`/posts/${postId}/bookmark`, { clerkUserId });
+export const checkBookmark = (postId, clerkUserId) => api.get(`/posts/${postId}/bookmark`, { params: { clerkUserId } });
+export const getUserBookmarks = (clerkUserId) => api.get('/bookmarks', { params: { clerkUserId } });
+
 // Response interceptor for better error handling
 api.interceptors.response.use(
   response => response,

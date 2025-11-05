@@ -13,6 +13,8 @@ const categoryRoutes = require('./routes/categories');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const commentRoutes = require('./routes/comments');
+const likeRoutes = require('./routes/likes');
+const bookmarkRoutes = require('./routes/bookmarks');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -56,6 +58,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', commentRoutes);
+app.use('/api', likeRoutes);
+app.use('/api', bookmarkRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -67,7 +71,9 @@ app.get('/', (req, res) => {
       categories: '/api/categories',
       auth: '/api/auth',
       users: '/api/users',
-      comments: '/api/posts/:postId/comments'
+      comments: '/api/posts/:postId/comments',
+      likes: '/api/posts/:postId/like',
+      bookmarks: '/api/posts/:postId/bookmark'
     }
   });
 });

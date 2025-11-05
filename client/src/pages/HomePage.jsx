@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getPosts } from '../services/api';
 import { Link } from 'react-router-dom';
 import { SignUpButton } from '@clerk/clerk-react';
+import PopularPosts from '../components/PopularPosts';
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
@@ -285,6 +286,11 @@ const HomePage = () => {
             </Link>
           </div>
         )}
+
+        {/* Popular Posts Widget */}
+        <div className="mt-16 max-w-2xl mx-auto">
+          <PopularPosts limit={5} />
+        </div>
       </div>
 
       {/* Features/Benefits Section */}
