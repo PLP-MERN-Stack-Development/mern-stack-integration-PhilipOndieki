@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getPosts } from '../services/api';
+import { getPosts, getCategories } from '../services/api';
 import { Link } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 
@@ -11,17 +11,26 @@ const BlogPage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPosts, setFilteredPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await getPosts();
-        setPosts(response.data.data || []);
-        setFilteredPosts(response.data.data || []);
+
+        // Fetch posts and categories in parallel
+        const [postsResponse, categoriesResponse] = await Promise.all([
+          getPosts(),
+          getCategories()
+        ]);
+
+        setPosts(postsResponse.data.data || []);
+        setFilteredPosts(postsResponse.data.data || []);
+        setCategories(categoriesResponse.data.data || []);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching data:', error);
         setError({
           message: 'Unable to load blog posts',
           details: error.response?.data?.message || 'Please check your connection and try again.',
@@ -32,21 +41,31 @@ const BlogPage = () => {
       }
     };
 
-    fetchPosts();
+    fetchData();
   }, []);
 
-  // Search functionality
+  // Search and category filtering
   useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredPosts(posts);
-    } else {
-      const filtered = (posts || []).filter(post =>
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.content.toLowerCase().includes(searchTerm.toLowerCase())
+    let filtered = posts || [];
+
+    // Filter by category
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(post =>
+        post.category?._id === selectedCategory || post.category?.name === selectedCategory
       );
-      setFilteredPosts(filtered);
     }
-  }, [searchTerm, posts]);
+
+    // Filter by search term
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(post =>
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    setFilteredPosts(filtered);
+  }, [searchTerm, selectedCategory, posts]);
 
   const handleRetry = () => {
     window.location.reload();
@@ -230,6 +249,37 @@ const BlogPage = () => {
         </div>
       </div>
 
+      {/* Category Filter */}
+      {categories.length > 0 && (
+        <div className="mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`px-5 py-2 rounded-full font-medium transition-all ${
+                selectedCategory === 'all'
+                  ? 'bg-[#4a7c59] text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              All Articles
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category._id}
+                onClick={() => setSelectedCategory(category._id)}
+                className={`px-5 py-2 rounded-full font-medium transition-all ${
+                  selectedCategory === category._id
+                    ? 'bg-[#4a7c59] text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Create Post Button */}
       {isSignedIn && (
         <div className="text-center mb-8">
@@ -348,13 +398,28 @@ const BlogPage = () => {
                   {post.content.substring(0, 150)}...
                 </p>
 
+                {/* Author Info */}
+                {post.author && (
+                  <Link
+                    to={`/profile/${post.author.username}`}
+                    className="flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8db596] to-[#4a7c59] flex items-center justify-center text-white font-semibold text-sm">
+                      {post.author.username?.[0]?.toUpperCase() || 'A'}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 hover:text-[#4a7c59] transition-colors">
+                      {post.author.username}
+                    </span>
+                  </Link>
+                )}
+
                 {/* Meta Info */}
                 <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    5 min read
+                    {Math.ceil(post.content.split(' ').length / 200)} min read
                   </span>
                   <span>
                     {new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', {

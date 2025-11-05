@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
 import { getComments, createComment, updateComment, deleteComment } from '../services/api';
 import { SignInButton } from '@clerk/clerk-react';
 
@@ -187,9 +188,16 @@ const Comments = ({ postId }) => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">
-                      {comment.author?.username || 'Anonymous'}
-                    </span>
+                    {comment.author?.username ? (
+                      <Link
+                        to={`/profile/${comment.author.username}`}
+                        className="font-semibold text-gray-900 hover:text-[#4a7c59] transition-colors"
+                      >
+                        {comment.author.username}
+                      </Link>
+                    ) : (
+                      <span className="font-semibold text-gray-900">Anonymous</span>
+                    )}
                     <span className="text-sm text-gray-500">•</span>
                     <span className="text-sm text-gray-500">
                       {new Date(comment.createdAt).toLocaleDateString('en-US', {

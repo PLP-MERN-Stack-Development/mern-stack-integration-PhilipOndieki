@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getPost, deletePost } from '../services/api';  
+import { getPost, deletePost } from '../services/api';
 import { useUser } from '@clerk/clerk-react';
+import Comments from '../components/Comments';
+import LikeButton from '../components/LikeButton';
+import BookmarkButton from '../components/BookmarkButton';
+import RelatedPosts from '../components/RelatedPosts';
 
 const PostPage = () => {
   const { user, isSignedIn } = useUser();
@@ -104,14 +108,14 @@ const handleDelete = async () => {
 
         {/* Meta Information */}
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
+          <Link to={`/profile/${post.author?.username}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8db596] to-[#4a7c59] flex items-center justify-center text-white font-semibold">
               {post.author?.username?.[0]?.toUpperCase() || 'A'}
             </div>
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 hover:text-[#4a7c59] transition-colors">
               {post.author?.username || 'Anonymous'}
             </span>
-          </div>
+          </Link>
           <span>•</span>
           <time>
             {new Date(post.createdAt).toLocaleDateString('en-US', {
@@ -181,6 +185,13 @@ const handleDelete = async () => {
         </div>
       </div>
 
+      {/* Engagement Section - Like & Bookmark */}
+      <div className="flex justify-center items-center gap-8 py-8 mb-8 border-y border-gray-200">
+        <LikeButton postId={id} />
+        <div className="h-12 w-px bg-gray-200"></div>
+        <BookmarkButton postId={id} showLabel={true} />
+      </div>
+
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-12 pb-12 border-b border-gray-200">
@@ -217,8 +228,18 @@ const handleDelete = async () => {
           </button>
         </div>
       )}
+      {/* Comments Section */}
+      <Comments postId={id} />
+
+      {/* Related Posts */}
+      <RelatedPosts
+        currentPostId={id}
+        categoryId={post.category?._id}
+        categoryName={post.category?.name}
+      />
+
       {/* Navigation */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mt-12">
         <button
           onClick={() => navigate('/blog')}
           className="inline-flex items-center gap-2 text-[#4a7c59] hover:text-[#3d6b4a] font-medium transition-colors"

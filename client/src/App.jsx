@@ -10,12 +10,13 @@ import EnterprisePage from './pages/EnterprisePage';
 import PricingPage from './pages/PricingPage';
 import CreatePostPage from './pages/CreatePostPage';
 import EditPostPage from './pages/EditPostPage';
+import UserProfile from './components/UserProfile';
 import UserSync from './components/UserSync';
 
 function App() {
   return (
     <Router>
-      <UserSync /> 
+      <UserSync />
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
@@ -27,6 +28,7 @@ function App() {
           <Route path="blog/create" element={<CreatePostPage />} />
           <Route path="blog/:id" element={<PostPage />} />
           <Route path="/blog/edit/:id" element={<EditPostPage />} />
+          <Route path="/profile/:username" element={<UserProfile />} />
         </Route>
       </Routes>
     </Router>
