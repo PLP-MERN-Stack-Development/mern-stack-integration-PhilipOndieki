@@ -134,17 +134,8 @@ const commentSchema = Joi.object({
   clerkId: Joi.string()
     .required()
     .messages({
-      'any.required': 'Author is required'
-    }),
-
-  post: Joi.string()
-    .required()
-    .messages({
-      'any.required': 'Post ID is required'
-    }),
-
-  clerkId: Joi.string()
-    .allow('', null)
+      'any.required': 'User authentication is required'
+    })
 });
 
 // Validation middleware factory
