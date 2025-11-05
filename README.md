@@ -1,5 +1,8 @@
 # 🌿 Mindful Haven - MERN Stack Blog Application
 
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/ba56d07b-567d-4226-9add-a0518c2c32d5" />
+Project url: https://mindfulhaven22.onrender.com/
+
 A full-featured blog application built with the MERN (MongoDB, Express.js, React.js, Node.js) stack, focused on wellness, mindfulness, and mental health content. This project demonstrates seamless integration between front-end and back-end components, including database operations, API communication, state management, and user authentication.
 
 ## 📋 Project Overview
